@@ -18,8 +18,11 @@ namespace WIKI.Helpers
             public IEnumerable<LuceneData> SampleSearchResults { get; set; }
           
             public string SearchTerm { get; set; }
-          
 
-     
+   
         }
+
+
+
+
     }

@@ -49,13 +49,18 @@
           <tr>
              
                
-                <td> <a href="Details.aspx?Id=<%# Eval("Id")%>"><%# Eval("Name")%></a></td>
+                <td> <a href="ArticleDetails.aspx?ArticleId=<%# Eval("Id")%>"><%# Eval("Name")%></a></td>
+
+            
               
 			    <td><%# Eval("Description")%></td>
 			      
       
 		      </tr>
         </ItemTemplate>
+          
+
+
         <EmptyDataTemplate>
           <br/><b>No search index records found...</b><br/>
         </EmptyDataTemplate>

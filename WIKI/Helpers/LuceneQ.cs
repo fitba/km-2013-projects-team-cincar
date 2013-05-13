@@ -17,13 +17,13 @@ using System.Data;
 
 namespace WIKI.Helpers
 {
-    public class LuceneSearch
+    public class LuceneQ
     {
 
-     
+
         // properties
         public static string _luceneDir =
-            Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "lucene_index");
+            Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "lucene_Q");
         private static FSDirectory _directoryTemp;
         private static FSDirectory _directory
         {
@@ -38,10 +38,10 @@ namespace WIKI.Helpers
         }
 
         // search methods
-        public static IEnumerable<LuceneData> GetAllIndexRecords()
+        public static IEnumerable<LuceneQData> GetAllIndexRecords()
         {
             // validate search index
-            if (!System.IO.Directory.EnumerateFiles(_luceneDir).Any()) return new List<LuceneData>();
+            if (!System.IO.Directory.EnumerateFiles(_luceneDir).Any()) return new List<LuceneQData>();
 
             // set up lucene searcher
             var searcher = new IndexSearcher(_directory, false);
@@ -55,9 +55,9 @@ namespace WIKI.Helpers
             searcher.Dispose();
             return _mapLuceneToDataList(docs);
         }
-        public static IEnumerable<LuceneData> Search(string input, string fieldName = "")
+        public static IEnumerable<LuceneQData> Search(string input, string fieldName = "")
         {
-            if (string.IsNullOrEmpty(input)) return new List<LuceneData>();
+            if (string.IsNullOrEmpty(input)) return new List<LuceneQData>();
 
             var terms = input.Trim().Replace("-", " ").Split(' ')
                 .Where(x => !string.IsNullOrEmpty(x)).Select(x => x.Trim() + "*");
@@ -65,16 +65,16 @@ namespace WIKI.Helpers
 
             return _search(input, fieldName);
         }
-        public static IEnumerable<LuceneData> SearchDefault(string input, string fieldName = "")
+        public static IEnumerable<LuceneQData> SearchDefault(string input, string fieldName = "")
         {
-            return string.IsNullOrEmpty(input) ? new List<LuceneData>() : _search(input, fieldName);
+            return string.IsNullOrEmpty(input) ? new List<LuceneQData>() : _search(input, fieldName);
         }
 
         // main search method
-        private static IEnumerable<LuceneData> _search(string searchQuery, string searchField = "")
+        private static IEnumerable<LuceneQData> _search(string searchQuery, string searchField = "")
         {
             // validation
-            if (string.IsNullOrEmpty(searchQuery.Replace("*", "").Replace("?", ""))) return new List<LuceneData>();
+            if (string.IsNullOrEmpty(searchQuery.Replace("*", "").Replace("?", ""))) return new List<LuceneQData>();
 
             // set up lucene searcher
             using (var searcher = new IndexSearcher(_directory, false))
@@ -122,11 +122,11 @@ namespace WIKI.Helpers
         }
 
         // map Lucene search index to data
-        private static IEnumerable<LuceneData> _mapLuceneToDataList(IEnumerable<Document> hits)
+        private static IEnumerable<LuceneQData> _mapLuceneToDataList(IEnumerable<Document> hits)
         {
             return hits.Select(_mapLuceneDocumentToData).ToList();
         }
-        private static IEnumerable<LuceneData> _mapLuceneToDataList(IEnumerable<ScoreDoc> hits, IndexSearcher searcher)
+        private static IEnumerable<LuceneQData> _mapLuceneToDataList(IEnumerable<ScoreDoc> hits, IndexSearcher searcher)
         {
             // v 2.9.4: use 'hit.doc'
             // v 3.0.3: use 'hit.Doc'
@@ -134,24 +134,24 @@ namespace WIKI.Helpers
         }
 
 
-        private static LuceneData _mapLuceneDocumentToData(Document doc)
+        private static LuceneQData _mapLuceneDocumentToData(Document doc)
         {
-            return new LuceneData
+            return new LuceneQData
             {
                 Id = Convert.ToInt32(doc.Get("Id")),
                 Name = doc.Get("Name"),
                 Description = doc.Get("Description")
-               
-              
+
+
             };
         }
 
         // add/update/clear search index data 
-        public static void AddUpdateLuceneIndex(LuceneData sampleData)
+        public static void AddUpdateLuceneIndex(LuceneQData sampleData)
         {
-            AddUpdateLuceneIndex(new List<LuceneData> { sampleData });
+            AddUpdateLuceneIndex(new List<LuceneQData> { sampleData });
         }
-        public static void AddUpdateLuceneIndex(IEnumerable<LuceneData> sampleDatas)
+        public static void AddUpdateLuceneIndex(IEnumerable<LuceneQData> sampleDatas)
         {
             // init lucene
             var analyzer = new StandardAnalyzer(Version.LUCENE_30);
@@ -211,7 +211,7 @@ namespace WIKI.Helpers
                 writer.Dispose();
             }
         }
-        private static void _addToLuceneIndex(LuceneData sampleData, IndexWriter writer)
+        private static void _addToLuceneIndex(LuceneQData sampleData, IndexWriter writer)
         {
             // remove older index entry
             var searchQuery = new TermQuery(new Term("Id", sampleData.Id.ToString()));
@@ -231,78 +231,78 @@ namespace WIKI.Helpers
             writer.AddDocument(doc);
         }
 
-        public static List<LuceneData> GetArticle()
-        {
-
-            string connStr = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;
-            SqlConnection connection = new SqlConnection(connStr);
-
-            List<LuceneData> obj1 = new List<LuceneData>();
-
-            DataTable dt = new DataTable();
-            SqlConnection con = new SqlConnection(connStr);
-            con.Open();
-            SqlCommand cmd = new SqlCommand("select * from Article", con);
-            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            da.Fill(dt);
-            if (dt.Rows.Count > 0)
-            {
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    LuceneData ga = new LuceneData();
-                   
-                    ga.Id = Convert.ToInt32(dt.Rows[i]["ArticleId"].ToString());
-                    ga.Name = dt.Rows[i]["Title"].ToString();
-                    ga.Description = dt.Rows[i]["Body"].ToString();
-
-                    obj1.Add(ga);
-                }
-            }
-            return obj1;
-        }
-
-       
-        //public static List<LuceneData> GetQuestion()
+        //public static List<LuceneData> GetArticle()
         //{
 
         //    string connStr = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;
         //    SqlConnection connection = new SqlConnection(connStr);
 
-        //    List<LuceneData> obj2 = new List<LuceneData>();
+        //    List<LuceneData> obj1 = new List<LuceneData>();
 
         //    DataTable dt = new DataTable();
         //    SqlConnection con = new SqlConnection(connStr);
         //    con.Open();
-        //    SqlCommand cmd = new SqlCommand("select * from Question", con);
+        //    SqlCommand cmd = new SqlCommand("select * from Article", con);
         //    SqlDataAdapter da = new SqlDataAdapter(cmd);
         //    da.Fill(dt);
         //    if (dt.Rows.Count > 0)
         //    {
         //        for (int i = 0; i < dt.Rows.Count; i++)
         //        {
-        //            LuceneData gq = new LuceneData();
-        //            gq.Id = Convert.ToInt32(dt.Rows[i]["QuestionId"].ToString());
-        //            gq.Name = dt.Rows[i]["QuestionTitle"].ToString();
-        //            gq.Description = dt.Rows[i]["QuestionBody"].ToString();
+        //            LuceneData ga = new LuceneData();
 
-        //            obj2.Add(gq);
+        //            ga.Id = Convert.ToInt32(dt.Rows[i]["ArticleId"].ToString());
+        //            ga.Name = dt.Rows[i]["Title"].ToString();
+        //            ga.Description = dt.Rows[i]["Body"].ToString();
+
+        //            obj1.Add(ga);
         //        }
         //    }
-        //    return obj2;
+        //    return obj1;
         //}
 
 
-        public static List<LuceneData> GetAllDataForLuceneIndex()
+        public static List<LuceneQData> GetQuestion()
         {
-            List<LuceneData> temp = new List<LuceneData>();
-            temp.AddRange(GetArticle());
-            //temp.AddRange(GetQuestion());
+
+            string connStr = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;
+            SqlConnection connection = new SqlConnection(connStr);
+
+            List<LuceneQData> obj2 = new List<LuceneQData>();
+
+            DataTable dt = new DataTable();
+            SqlConnection con = new SqlConnection(connStr);
+            con.Open();
+            SqlCommand cmd = new SqlCommand("select * from Question", con);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            da.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    LuceneQData gq = new LuceneQData();
+                    gq.Id = Convert.ToInt32(dt.Rows[i]["QuestionId"].ToString());
+                    gq.Name = dt.Rows[i]["QuestionTitle"].ToString();
+                    gq.Description = dt.Rows[i]["QuestionBody"].ToString();
+
+                    obj2.Add(gq);
+                }
+            }
+            return obj2;
+        }
+
+
+        public static List<LuceneQData> GetAllDataForLuceneIndex()
+        {
+            List<LuceneQData> temp = new List<LuceneQData>();
+            //temp.AddRange(GetArticle());
+            temp.AddRange(GetQuestion());
             return temp;
         }
 
-      
+
 
     }
 
 }
-    
+

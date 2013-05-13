@@ -366,7 +366,10 @@
     <Compile Include="Helpers\DefaultViewModel.cs" />
     <Compile Include="Helpers\LuceneData.cs" />
     <Compile Include="Helpers\LuceneDataResp.cs" />
+    <Compile Include="Helpers\LuceneQ.cs" />
+    <Compile Include="Helpers\LuceneQData.cs" />
     <Compile Include="Helpers\LuceneSearch.cs" />
+    <Compile Include="Helpers\Model1.cs" />
     <Compile Include="Helpers\QAAnswer.cs" />
     <Compile Include="Helpers\QATag.cs" />
     <Compile Include="Helpers\QAQuestion.cs" />

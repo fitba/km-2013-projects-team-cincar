@@ -33,8 +33,6 @@ namespace WIKI.Account
         {
             MostReadArticle();
 
-
-
             PopularArticles();
 
             MostRecent();
@@ -56,34 +54,13 @@ namespace WIKI.Account
         }
 
        
-        //private string getSearchField()
-        //{
-        //    return Request.QueryString["searchField"] ?? "";
-        //}
-        //private string getSearchType()
-        //{
-        //    return Request.QueryString["type"] ?? "";
-        ////}
-        //private string getLimit()
-        //{
-        //    return Request.QueryString["limit"] ?? "";
-        //}
+       
 
         private void bindData()
         {
             Model = getDefaultViewModel(getSearchTerm()); //getSearchField(), getSearchType());
 
-            //var limit = getLimit() == "" ? 15 : Convert.ToInt32(getLimit());
-            //if (limit > 0)
-            //{
-            //    litDatabaseRecordsCount.Text =
-            //      "<div class=\"margin_top10\">And <b>" + (Model.AllSampleData.Count() - limit) + "</b> more records... " +
-            //      "(<a href=\"" + "../Account/Index.aspx" + "?limit=0\">See All</a>)</div>";
-            //    lvDatabase.DataSource = Model.AllSampleData.Take(limit);
-            //}
-            //else
-            //    lvDatabase.DataSource = Model.AllSampleData;
-            //lvDatabase.DataBind();
+ 
 
             
 
@@ -237,6 +214,7 @@ namespace WIKI.Account
               //);
         }
 
+      
         protected void Button1_Click(object sender, EventArgs e)
         {
             createIndex();
