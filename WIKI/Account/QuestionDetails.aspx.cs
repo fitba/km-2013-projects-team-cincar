@@ -19,7 +19,7 @@ namespace WIKI.Account
         static string connStr = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;
         SqlConnection connection = new SqlConnection(connStr);
 
-        static Dictionary<string, List<Recommendation>> productRecommendations = new Dictionary<string, List<Recommendation>>();
+       
       
 
         protected void Page_Load(object sender, EventArgs e)
@@ -114,7 +114,7 @@ namespace WIKI.Account
                 GetTagInQuestions();
                 connection.Close();
 
-                ItemBasedRecommendation();
+               
 
                 //////Recommend StackOverflow
 
@@ -587,101 +587,7 @@ namespace WIKI.Account
 
         
 
-         public static IList<Recommendation> TopMatches(string name)
-        {
-            // grab of list of products that *excludes* the item we're searching for
-            var sortedList = productRecommendations.Where(x => x.Key != name);
-
-            sortedList.OrderByDescending(x => x.Key);
-
-            List<Recommendation> recommendations = new List<Recommendation>();
-
-            // go through the list and calculate the Pearson score for each product
-            foreach (var entry in sortedList)
-            {
-                recommendations.Add(new Recommendation() { Name = entry.Key, Rating = CalculatePearsonCorrelation(name, entry.Key) });
-            }
-
-            return recommendations;
-        }
-
-          private void ItemBasedRecommendation()
-
-          {
-              Rec recommendation = new Rec();
-
-              string product = Request.QueryString["QuestionId"];
-         var matches = TopMatches(product);
-            Console.WriteLine("\nDisplay products scores calculated against the {0}:", product);
-            Console.WriteLine("\nProduct \t\t\t Pearson Score");
-            foreach (var item in matches)
-            {
-                Console.WriteLine("{0} \t\t {1}", item.Name, item.Rating);
-               
-
-            }
-          }
-
-        static double CalculatePearsonCorrelation(string product1, string product2)
-        {
-            List<Recommendation> shared_items = new List<Recommendation>();
-
-            // collect a list of products have have reviews in common
-            foreach (var item in productRecommendations[product1])
-            {
-                if (productRecommendations[product2].Where(x => x.Name == item.Name).Count() != 0)
-                {
-                    shared_items.Add(item);
-                }
-            }
-
-            if (shared_items.Count == 0)
-            {
-                // they have nothing in common exit with a zero
-                return 0;
-            }
-
-            // sum up all the preferences
-            double product1_review_sum = 0.00f;
-            foreach (Recommendation item in shared_items)
-            {
-                product1_review_sum += productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
-            }
-
-            double product2_review_sum = 0.00f;
-            foreach (Recommendation item in shared_items)
-            {
-                product2_review_sum += productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
-            }
-
-            // sum up the squares
-            double product1_rating = 0f;
-            double product2_rating = 0f;
-            foreach (Recommendation item in shared_items)
-            {
-                product1_rating += Math.Pow(productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating, 2);
-                product2_rating += Math.Pow(productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating, 2);
-            }
-
-            //sum up the products
-            double critics_sum = 0f;
-            foreach (Recommendation item in shared_items)
-            {
-                critics_sum += productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating *
-                                productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
-
-            }
-
-            //calculate pearson score
-            double num = critics_sum - (product1_review_sum * product2_review_sum / shared_items.Count);
-
-            double density = (double)Math.Sqrt((product1_rating - Math.Pow(product1_review_sum, 2) / shared_items.Count) * ((product2_rating - Math.Pow(product2_review_sum, 2) / shared_items.Count)));
-
-            if (density == 0)
-                return 0;
-
-            return num / density;
-        }
+     
     }
        
         
