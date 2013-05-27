@@ -10,6 +10,7 @@ using System.Data;
 using System.IO;
 using System.Windows.Forms;
 using WIKI.Helpers;
+using System.Web.UI.HtmlControls;
 
 namespace WIKI.Account
 {
@@ -18,7 +19,7 @@ namespace WIKI.Account
         static string connStr = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;
         SqlConnection connection = new SqlConnection(connStr);
 
-        
+        static Dictionary<string, List<Recommendation>> productRecommendations = new Dictionary<string, List<Recommendation>>();
       
 
         protected void Page_Load(object sender, EventArgs e)
@@ -27,13 +28,23 @@ namespace WIKI.Account
             string Question = Request.QueryString["QuestionId"];
             string numviews = "0";
             showAnswers(Convert.ToInt32(Question));
-        
+
+
             
+
+           
+
+            
+         
             List<QAQuestion> questionbody = new List<QAQuestion>();
             QAQuestion question = new QAQuestion();
 
             QAAnswer answer = new QAAnswer();
             List<QAAnswer> answerlist = new List<QAAnswer>();
+
+            QATag tag = new QATag();
+           
+            
 
             if (!IsPostBack)
             {
@@ -48,6 +59,9 @@ namespace WIKI.Account
                 da.Fill(ds);
                 refreshVotingData();
 
+                List<QATag> taglist = new List<QATag>();
+                //rprTags.DataSource = taglist;
+                //rprTags.DataBind();
 
                 SqlDataReader reader = cmd.ExecuteReader();
 
@@ -73,7 +87,7 @@ namespace WIKI.Account
                    else
                        numviews = "0";
 
-
+                   
                     questionbody.Add(question);
 
                     Repeater1.DataSource = questionbody;
@@ -82,14 +96,16 @@ namespace WIKI.Account
 
                     lblDate.Text = reader["CreatedDate"].ToString();
                     lblAutor.Text = reader["Firstname"].ToString() + " " + reader["Lastname"].ToString() + "";
-                    
 
-                  
+
+                    
 
                     reader.Close();
                     connection.Close();
-                    UpdateViews(numviews); 
+                    UpdateViews(numviews);
+                    
 
+                 
                   
                 }
 
@@ -97,9 +113,56 @@ namespace WIKI.Account
                 lblKljucneRijeci.Text = "";
                 GetTagInQuestions();
                 connection.Close();
+
+                ItemBasedRecommendation();
+
+                //////Recommend StackOverflow
+
+                StackOverflowRecommendation(taglist, question.QuestionTitle);
+               
             }
         }
 
+
+      
+        
+
+       
+      
+
+        private void StackOverflowRecommendation(List<QATag> taglist, string title)
+        {
+           
+
+            List<string> words = new List<string>();
+
+            foreach (QATag t in taglist)
+            {
+                if (t.Name.Length >= 3)
+                    words.Add(t.Name);
+            }
+
+            words.Add(title);
+            words = words.Distinct().ToList();
+
+            ExternalIntegration integration = new ExternalIntegration();
+            List<Question> questionsStack = new List<Question>();
+            List<Question> questionsStackRecommend = new List<Question>();
+
+
+            foreach (string w in words)
+            {
+                questionsStack.Clear();
+                questionsStack.AddRange(integration.SearchStackOverflow(w));
+                questionsStackRecommend.AddRange(questionsStack.Take(3).ToList());
+            }
+
+            questionsStackRecommend = questionsStackRecommend.Distinct().ToList();
+            stackOverflowList.DataSource = questionsStackRecommend;
+            stackOverflowList.DataBind();
+
+          
+        }
 
      
         
@@ -123,6 +186,9 @@ namespace WIKI.Account
 
          private void GetTagInQuestions()
             {
+                
+                List<QATag> taglist = new List<QATag>();
+
                 string Question = Request.QueryString["QuestionId"];
                 try
                 {
@@ -135,24 +201,50 @@ namespace WIKI.Account
                     connection.Open();
                     SqlDataAdapter daKljucneRijeci = new SqlDataAdapter(cmdKljucneRijeci);
                     SqlDataReader readerKljucneRijeci = cmdKljucneRijeci.ExecuteReader();
+
+                    
+
+                
+
                     while (readerKljucneRijeci.Read())
                     {
                         lblKljucneRijeci.Text = lblKljucneRijeci.Text + "  |   " + readerKljucneRijeci["Tag"].ToString() + "";
+
+                        QATag tag = new QATag();
+
+                       
+                        tag.Name = readerKljucneRijeci["Tag"].ToString() ;
+
+
+
+                        taglist.Add(tag);
+
+                       
+                            
+                    
                       
                     }
+
+                    //rprTags.DataSource = taglist;
+                    //rprTags.DataBind();
+
+
                     readerKljucneRijeci.Close();
 
-                    
+                   
 
 
                 }
                 catch (Exception ex)
                 {
                     // MessageBox.Show("Greska!", "Important Message");
-                    ClientScript.RegisterStartupScript(typeof(Page), "myscript", "alert('Failed!');", true);
+                    ClientScript.RegisterStartupScript(typeof(Page), "myscript", "alert('Failed Tags!');", true);
                 }
                 finally { connection.Close(); }
 
+
+
+               
             }
 
          private void refreshVotingData()
@@ -283,6 +375,15 @@ namespace WIKI.Account
              rprAnswers.DataBind();
          }
 
+
+       
+
+
+
+
+
+         
+         
 
             protected void InsertAnswer()
          {
@@ -483,6 +584,106 @@ namespace WIKI.Account
 
          }
 
+
+        
+
+         public static IList<Recommendation> TopMatches(string name)
+        {
+            // grab of list of products that *excludes* the item we're searching for
+            var sortedList = productRecommendations.Where(x => x.Key != name);
+
+            sortedList.OrderByDescending(x => x.Key);
+
+            List<Recommendation> recommendations = new List<Recommendation>();
+
+            // go through the list and calculate the Pearson score for each product
+            foreach (var entry in sortedList)
+            {
+                recommendations.Add(new Recommendation() { Name = entry.Key, Rating = CalculatePearsonCorrelation(name, entry.Key) });
+            }
+
+            return recommendations;
+        }
+
+          private void ItemBasedRecommendation()
+
+          {
+              Rec recommendation = new Rec();
+
+              string product = Request.QueryString["QuestionId"];
+         var matches = TopMatches(product);
+            Console.WriteLine("\nDisplay products scores calculated against the {0}:", product);
+            Console.WriteLine("\nProduct \t\t\t Pearson Score");
+            foreach (var item in matches)
+            {
+                Console.WriteLine("{0} \t\t {1}", item.Name, item.Rating);
+               
+
+            }
+          }
+
+        static double CalculatePearsonCorrelation(string product1, string product2)
+        {
+            List<Recommendation> shared_items = new List<Recommendation>();
+
+            // collect a list of products have have reviews in common
+            foreach (var item in productRecommendations[product1])
+            {
+                if (productRecommendations[product2].Where(x => x.Name == item.Name).Count() != 0)
+                {
+                    shared_items.Add(item);
+                }
+            }
+
+            if (shared_items.Count == 0)
+            {
+                // they have nothing in common exit with a zero
+                return 0;
+            }
+
+            // sum up all the preferences
+            double product1_review_sum = 0.00f;
+            foreach (Recommendation item in shared_items)
+            {
+                product1_review_sum += productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
+            }
+
+            double product2_review_sum = 0.00f;
+            foreach (Recommendation item in shared_items)
+            {
+                product2_review_sum += productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
+            }
+
+            // sum up the squares
+            double product1_rating = 0f;
+            double product2_rating = 0f;
+            foreach (Recommendation item in shared_items)
+            {
+                product1_rating += Math.Pow(productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating, 2);
+                product2_rating += Math.Pow(productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating, 2);
+            }
+
+            //sum up the products
+            double critics_sum = 0f;
+            foreach (Recommendation item in shared_items)
+            {
+                critics_sum += productRecommendations[product1].Where(x => x.Name == item.Name).FirstOrDefault().Rating *
+                                productRecommendations[product2].Where(x => x.Name == item.Name).FirstOrDefault().Rating;
+
+            }
+
+            //calculate pearson score
+            double num = critics_sum - (product1_review_sum * product2_review_sum / shared_items.Count);
+
+            double density = (double)Math.Sqrt((product1_rating - Math.Pow(product1_review_sum, 2) / shared_items.Count) * ((product2_rating - Math.Pow(product2_review_sum, 2) / shared_items.Count)));
+
+            if (density == 0)
+                return 0;
+
+            return num / density;
+        }
+    }
+       
         
       
 
@@ -491,4 +692,4 @@ namespace WIKI.Account
     }
 
 
-    }
+    

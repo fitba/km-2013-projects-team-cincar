@@ -3,6 +3,7 @@
     <style type="text/css">
         .auto-style4 { height: 37px; }
     </style>
+    <link href="../Content/profile.css" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
       
@@ -12,8 +13,8 @@
 
 
 
-    <div class="container">
-    
+    <div class="container-fluid">
+    <div class="span7">
     <asp:Repeater ID="Repeater1" runat="server" >
    <ItemTemplate>
 
@@ -87,5 +88,44 @@
          <div class="row">
               <asp:LinkButton ID="btnEditArticle" runat="server" onclick="btnEditArticle_Click" class="btn btn-primary">Edit Article</asp:LinkButton>
              </div>
+        </div>
          </div>
+    <br />
+
+    <div id="Recommend">
+    <div class="container">
+
+        <div class="row">
+
+             <div class="span4">
+                                     <h5>Wikipedia Recommendation</h5>
+                            
+                          
+           
+                              
+                                                <asp:DataList ID="wikiList" runat="server" Width="100%">
+                                                    <ItemTemplate>
+                                                         <div class="row">
+                                                        
+                                                            <a href='<%# Eval("Url") %>' target="_blank">
+                                                                
+                                                                <%# Eval("Name") %>
+                                                            </a>
+                                                     </div>
+                                                    </ItemTemplate>
+                                                </asp:DataList>
+
+                                  </div>
+                                </div>
+     </div>
+
+
+                          </div>               
+                           
+                     
+      
+
+  
+
+
 </asp:Content>

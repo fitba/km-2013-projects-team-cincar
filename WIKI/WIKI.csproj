@@ -132,7 +132,6 @@
     <Content Include="Account\AllQuestions.aspx" />
     <Content Include="Account\ArticleDetails.aspx" />
     <Content Include="Account\CategoryDetails.aspx" />
-    <Content Include="Account\Details.aspx" />
     <Content Include="Account\EditArticle.aspx" />
     <Content Include="Account\Index.aspx" />
     <Content Include="Account\Login.aspx" />
@@ -203,6 +202,8 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Content\wysiwyg\bootstrap-wysihtml5.css" />
+    <Content Include="Content\wysiwyg\wysiwyg-color.css" />
     <Content Include="Default.aspx" />
     <Content Include="Images\accent.png" />
     <Content Include="Images\bullet.png" />
@@ -280,13 +281,6 @@
     <Compile Include="Account\CategoryDetails.aspx.designer.cs">
       <DependentUpon>CategoryDetails.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Account\Details.aspx.cs">
-      <DependentUpon>Details.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Account\Details.aspx.designer.cs">
-      <DependentUpon>Details.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Account\EditArticle.aspx.cs">
       <DependentUpon>EditArticle.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -363,7 +357,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Article.cs" />
+    <Compile Include="Helpers\ATags.cs" />
     <Compile Include="Helpers\DefaultViewModel.cs" />
+    <Compile Include="Helpers\ExternalIntegration.cs" />
+    <Compile Include="Helpers\Helper.cs" />
+    <Compile Include="Helpers\HtmlRemoval.cs" />
     <Compile Include="Helpers\LuceneData.cs" />
     <Compile Include="Helpers\LuceneDataResp.cs" />
     <Compile Include="Helpers\LuceneQ.cs" />
@@ -371,6 +369,7 @@
     <Compile Include="Helpers\LuceneSearch.cs" />
     <Compile Include="Helpers\Model1.cs" />
     <Compile Include="Helpers\QAAnswer.cs" />
+    <Compile Include="Helpers\QAService.cs" />
     <Compile Include="Helpers\QATag.cs" />
     <Compile Include="Helpers\QAQuestion.cs" />
     <Compile Include="Helpers\SelectedList.cs" />

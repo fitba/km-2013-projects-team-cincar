@@ -10,6 +10,7 @@ using System.Data;
 using System.IO;
 using System.Windows.Forms;
 using WIKI.Helpers;
+using System.Web.UI.HtmlControls;
 
 
 
@@ -28,11 +29,15 @@ namespace WIKI.Account
             string Article = Request.QueryString["ArticleId"];
 
             string views = "0";
+
+            
             List<Article> body = new List<Article>();
             Article article = new Article();
 
             if (!IsPostBack)
             {
+
+               
                 DataSet ds = new DataSet();
                 connection.Open();
                 SqlCommand cmd = new SqlCommand("SELECT dbo.Article.ArticleId As ArticleId, dbo.Article.Title AS Title, dbo.Article.Body AS Body, dbo.Article.CreateDate AS CreateDate,dbo.Article.Views AS Views, dbo.Users.UserId AS UserId, dbo.Users.Firstname, dbo.Users.Lastname, dbo.Users.Username"
@@ -43,6 +48,7 @@ namespace WIKI.Account
                 da.Fill(ds);
                 refreshVotingData();
 
+                List<ATags> taglist = new List<ATags>();
 
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
@@ -59,6 +65,10 @@ namespace WIKI.Account
                     article.Title = reader["Title"].ToString();
                     article.Body = reader["Body"].ToString();
                     article.Views = Convert.ToInt32(reader["Views"].ToString());
+
+                    
+
+                         
                    
                     body.Add(article);
                     Repeater1.DataSource = body;
@@ -73,6 +83,7 @@ namespace WIKI.Account
                     connection.Close();
                     UpdateViews(views);
                   
+                  
 
                     if (username != null) 
                     {
@@ -82,11 +93,54 @@ namespace WIKI.Account
 
                
                 lblTags.Text = "";
+              
                 GetTagInArticle();
                 connection.Close();
+
+
+                //Preporuka Wikipedia
+                WikiRecommendation(taglist, article.Title);
+
+               
+
+               
             }
         }
 
+
+        private void WikiRecommendation(List<ATags> taglist, string title)
+        {
+           
+
+            List<string> words = new List<string>();
+
+            foreach (ATags t in taglist)
+            {
+                if (t.Name.Length >= 4)
+                    words.Add(t.Name);
+            }
+
+            words.Add(title);
+            words = words.Distinct().ToList();
+
+            ExternalIntegration integration = new ExternalIntegration();
+            List<WikiP> articlesWiki = new List<WikiP>();
+            List<WikiP> articlesWikiRecommend = new List<WikiP>();
+
+            foreach (string w in words)
+            {
+                articlesWiki.Clear();
+                articlesWiki.AddRange(integration.SearchWikipedia(w));
+                articlesWikiRecommend.AddRange(articlesWiki.Take(3).ToList());
+            }
+
+            articlesWikiRecommend = articlesWikiRecommend.Distinct().ToList();
+            wikiList.DataSource = articlesWikiRecommend;
+            wikiList.DataBind();
+
+          
+        }
+       
 
         protected void UpdateViews(string Views)  
         {
@@ -182,6 +236,9 @@ namespace WIKI.Account
 
             private void GetTagInArticle()
             {
+
+                List<ATags> taglist = new List<ATags>();
+
                 string Article = Request.QueryString["ArticleId"];
                 try
                 {
@@ -194,9 +251,20 @@ namespace WIKI.Account
                     connection.Open();
                     SqlDataAdapter daKljucneRijeci = new SqlDataAdapter(cmdKljucneRijeci);
                     SqlDataReader readerKljucneRijeci = cmdKljucneRijeci.ExecuteReader();
+
+                   
+
                     while (readerKljucneRijeci.Read())
                     {
                         lblTags.Text = lblTags.Text + "  |   " + readerKljucneRijeci["Tag"].ToString() + "";
+
+                        ATags tags = new ATags();
+
+                        tags.Name = readerKljucneRijeci["Tag"].ToString();
+
+
+
+                        taglist.Add(tags);
                         
                     }
                     readerKljucneRijeci.Close();
@@ -215,5 +283,9 @@ namespace WIKI.Account
             }
 
 
-        }
+
+
+
+         
+    }
     }

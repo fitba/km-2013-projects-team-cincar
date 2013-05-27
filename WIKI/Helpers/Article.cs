@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace WIKI.Helpers
 {
@@ -11,6 +14,7 @@ namespace WIKI.Helpers
         string _title;
         string _articleid;
         int _views;
+     
         
 
         public string Body
@@ -35,8 +39,12 @@ namespace WIKI.Helpers
             get { return this._views; }
             set { this._views = value; }
         }
+
+     
         
 
+
+
+        }
       
     }
-}

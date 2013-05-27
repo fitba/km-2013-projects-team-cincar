@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
+
 namespace WIKI.Helpers
 {
     public class QAQuestion
     {
+
+
+
 
         int _questionid;
         string _questiontitle;
@@ -91,5 +95,16 @@ namespace WIKI.Helpers
             get { return this._tag; }
             set { this._tag = value; }
         }
+
+
+       
+        
+
+       
     }
-}
+
+
+       
+        }
+    
+

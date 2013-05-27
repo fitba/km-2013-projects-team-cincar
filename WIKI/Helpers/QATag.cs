@@ -9,7 +9,8 @@ namespace WIKI.Helpers
     {
 
         int _tagid;
-        string _tag;
+        //string _tag;
+        string _name;
 
         public int TagId
         {
@@ -17,10 +18,16 @@ namespace WIKI.Helpers
             set { this._tagid = value; }
         }
 
-        public string Tag
+        //public string Tag
+        //{
+        //    get { return this._tag; }
+        //    set { this._tag = value; }
+        //}
+
+        public string Name
         {
-            get { return this._tag; }
-            set { this._tag = value; }
+            get { return this._name; }
+            set { this._name = value; }
         }
     }
 }

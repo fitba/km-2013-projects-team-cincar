@@ -1,11 +1,13 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Account/Profile.Master" AutoEventWireup="true" CodeBehind="QuestionDetails.aspx.cs" Inherits="WIKI.Account.QuestionDetails" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+    <link href="../Content/profile.css" rel="stylesheet" />
+
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
 
     <div class="container">
-
+<div class="span7">
 <asp:Repeater ID="Repeater1" runat="server">
 
  <ItemTemplate>
@@ -73,17 +75,21 @@
                 <asp:Button ID="btnVoteArticle" runat="server" onclick="Button1_Click" Text="Grade Question" CssClass="btn" />
        </div>                 
  </div>
+    </div>
         </div>
 
     <div class="container">
+        <div class="span7">
     <hr />
      <asp:Label ID="lblAnswer" runat="server" Text=""><h4>ANSWERS ON QUESTION:</h4></asp:Label>
     <hr />
+             </div>
     </div>
 
     <br />
 
      <div class="container">
+         <div class="span7">
     <asp:Repeater ID="rprAnswers" runat="server" OnItemCommand="rprAnswers_ItemCommand" >
         <ItemTemplate>
                  
@@ -136,6 +142,46 @@
 
     <br />
              </div>
+              </div>
           </div>
+    <br />
+    <br />
+
+ 
+
+
+   <div id="Recommend">
+       <div class="container">
+        <div class="row">
+            <div class="span6">
+
+              
+                       
+                                <h5>StackOverflow Recommendation</h5>
+                             
+                            
+                      
+                                   
+                                                <asp:DataList ID="stackOverflowList" runat="server" Width="100%">
+                                                    <ItemTemplate>
+                                                      
+                                                            <a href='http://stackoverflow.com/<%# Eval("question_timeline_url") %>' target="_blank">
+                                                                <span class="label-bullet-blue">&nbsp;
+                                                                </span>
+                                                                <%# Eval("Title") %>
+                                                            </a>
+                                                      
+                                                    </ItemTemplate>
+                                                </asp:DataList>
+
+                                         </div>
+                            </div>
+                        </div>
+                    
+   
+                               
+     </div>
+
+     
 
 </asp:Content>

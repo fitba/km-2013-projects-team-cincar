@@ -1,7 +1,15 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Account/Profile.Master" AutoEventWireup="true" CodeBehind="NewArticle.aspx.cs" Inherits="WIKI.Account.NewArticle" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+
+
 </asp:Content>
+
+
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+
+ 
+
+
      <fieldset>
  <ol>
      <li>
